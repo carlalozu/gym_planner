@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selected Exercises</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f7f8fa; margin: 40px; }
+        h1 { text-align: center; }
+        .nav { text-align: center; margin-bottom: 30px; }
+        .nav a {
+            text-decoration: none;
+            color: white;
+            background-color: #333;
+            padding: 10px 16px;
+            border-radius: 5px;
+            margin: 0 5px;
+        }
+        .nav a:hover { background-color: #555; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+        th { background: #333; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .message { text-align: center; font-size: 1.2em; color: #888; margin-top: 40px; }
+    </style>
+</head>
+<body>
+    <h1>⭐ Selected Exercises</h1>
+
+    <div class="nav">
+        <a href="/">🏠 Today’s Plan</a>
+        <a href="/exercises">📘 Exercise Library</a>
+        <a href="/selected">⭐ Selected Exercises</a>
+    </div>
+
+    <div id="exerciseContainer"></div>
+
+    <script>
+        const container = document.getElementById('exerciseContainer');
+        const saved = JSON.parse(localStorage.getItem('selectedExercises') || '[]');
+
+        if (saved.length === 0) {
+            container.innerHTML = '<div class="message">No exercises selected yet 💆‍♀️</div>';
+        } else {
+            const table = document.createElement('table');
+            table.innerHTML = `
+                <thead>
+                    <tr>
+                        <th>Exercise</th>
+                        <th>Primary Muscle Group</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${saved.map(ex => `
+                        <tr>
+                            <td>${ex.exercise}</td>
+                            <td>${ex.muscle}</td>
+                        </tr>`).join('')}
+                </tbody>
+            `;
+            container.appendChild(table);
+        }
+    </script>
+</body>
+</html>

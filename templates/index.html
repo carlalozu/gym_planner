@@ -40,7 +40,9 @@
     <div class="nav">
         <a href="/">🏠 Today’s Plan</a>
         <a href="/exercises">📘 Exercise Library</a>
+        <a href="/selected">⭐ Selected Exercises</a> <!-- NEW TAB -->
     </div>
+
 
     <div class="controls">
         <form method="POST">
@@ -63,7 +65,7 @@
                     <th>Exercise</th>
                     <th>Sets</th>
                     <th>Reps</th>
-                    <th>Notes</th>
+                    <th>Weight</th>
                     <th>Muscle Group</th>
                 </tr>
             </thead>
@@ -73,7 +75,7 @@
                     <td>{{ item['Exercise'] }}</td>
                     <td>{{ item['Sets'] }}</td>
                     <td>{{ item['Reps'] }}</td>
-                    <td>{{ item['Notes'] }}</td>
+                    <td>{{ item['Weight'] }}</td>
                     <td>{{ item['Primary Muscle Group'] }}</td>
                 </tr>
                 {% endfor %}

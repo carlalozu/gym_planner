@@ -74,6 +74,10 @@ def show_exercises():
 
     return render_template('exercises.html', exercise_groups=exercise_groups)
 
+@app.route('/selected')
+def show_selected():
+    return render_template('selected.html')
+
 
 if __name__ == '__main__':
     app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)

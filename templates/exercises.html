@@ -41,6 +41,7 @@
             position: relative;
             width: 260px;
             text-align: left;
+            margin: 0 10px;
         }
 
         .dropdown-btn {
@@ -101,6 +102,7 @@
             margin-bottom: 40px;
             display: none;
         }
+
         .day-header {
             font-size: 1.3em;
             margin-bottom: 10px;
@@ -109,22 +111,36 @@
             padding: 6px 12px;
             border-radius: 4px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             background: white;
         }
+
         th, td {
             border: 1px solid #ccc;
             padding: 8px;
             text-align: left;
         }
+
         th {
             background: #333;
             color: white;
         }
+
         tr:nth-child(even) {
             background-color: #f2f2f2;
+        }
+
+        /* Checkbox styling */
+        input[type="checkbox"].select-exercise {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        .selected-row {
+            background-color: #d8f8d8 !important;
         }
     </style>
 </head>
@@ -134,12 +150,13 @@
     <div class="nav">
         <a href="/">🏠 Today’s Plan</a>
         <a href="/exercises">📘 Exercise Library</a>
+        <a href="/selected">⭐ Selected Exercises</a>
     </div>
 
     <div class="filter-section">
-        <div class="dropdown" id="dropdown">
-            <button class="dropdown-btn" id="dropdownBtn">Select Day Types</button>
-            <div class="dropdown-content" id="dropdownContent">
+        <div class="dropdown" id="dayDropdown">
+            <button class="dropdown-btn" id="dayBtn">Select Day Types</button>
+            <div class="dropdown-content" id="dayContent">
                 {% for group in exercise_groups %}
                     <label>
                         <input type="checkbox" value="{{ group.day_type }}">
@@ -156,13 +173,15 @@
         <table>
             <thead>
                 <tr>
+                    <th>Select</th>
                     <th>Exercise</th>
                     <th>Primary Muscle Group</th>
                 </tr>
             </thead>
             <tbody>
                 {% for ex in group.exercises %}
-                <tr>
+                <tr data-exercise="{{ ex['Exercise'] }}">
+                    <td><input type="checkbox" class="select-exercise"></td>
                     <td>{{ ex['Exercise'] }}</td>
                     <td>{{ ex['Primary Muscle Group'] }}</td>
                 </tr>
@@ -173,25 +192,23 @@
     {% endfor %}
 
     <script>
-        const dropdown = document.getElementById('dropdown');
-        const btn = document.getElementById('dropdownBtn');
-        const content = document.getElementById('dropdownContent');
+        // Dropdown filter logic
+        const dropdown = document.getElementById('dayDropdown');
+        const btn = document.getElementById('dayBtn');
+        const content = document.getElementById('dayContent');
         const checkboxes = content.querySelectorAll('input[type="checkbox"]');
         const sections = document.querySelectorAll('.day-section');
 
-        // Toggle dropdown open/close
         btn.addEventListener('click', () => {
             content.style.display = content.style.display === 'block' ? 'none' : 'block';
         });
 
-        // Close dropdown if clicking outside
         window.addEventListener('click', (e) => {
             if (!dropdown.contains(e.target)) {
                 content.style.display = 'none';
             }
         });
 
-        // Handle selection changes
         checkboxes.forEach(cb => {
             cb.addEventListener('change', () => {
                 const selected = Array.from(checkboxes)
@@ -199,22 +216,56 @@
                     .map(c => c.value);
 
                 // Update button text
-                if (selected.length === 0) {
-                    btn.textContent = 'Select Day Types';
-                } else {
-                    btn.textContent = selected.join(', ');
-                }
+                btn.textContent = selected.length === 0 ? 'Select Day Types' : selected.join(', ');
 
-                // Show/hide tables
+                // Show/hide sections
                 sections.forEach(section => {
-                    if (selected.includes(section.dataset.day)) {
-                        section.style.display = 'block';
-                    } else {
-                        section.style.display = 'none';
-                    }
+                    section.style.display = selected.length === 0 || selected.includes(section.dataset.day)
+                        ? 'block'
+                        : 'none';
                 });
             });
         });
+
+        // --- ✅ Exercise selection logic ---
+        const exerciseCheckboxes = document.querySelectorAll('.select-exercise');
+        exerciseCheckboxes.forEach(box => {
+            box.addEventListener('change', (e) => {
+                const row = e.target.closest('tr');
+                if (e.target.checked) {
+                    row.classList.add('selected-row');
+                } else {
+                    row.classList.remove('selected-row');
+                }
+            });
+        });
+
+    // --- ✅ Save selections to localStorage ---
+    function saveSelections() {
+        const selectedExercises = [];
+        document.querySelectorAll('.select-exercise:checked').forEach(box => {
+            const row = box.closest('tr');
+            const exercise = row.dataset.exercise;
+            const muscle = row.children[2].textContent;
+            selectedExercises.push({ exercise, muscle });
+        });
+        localStorage.setItem('selectedExercises', JSON.stringify(selectedExercises));
+        alert('✅ Saved your selected exercises!');
+    }
+
+    // Add a "Save Selection" button below the filter
+    const filterSection = document.querySelector('.filter-section');
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = '💾 Save Selected Exercises';
+    saveBtn.style.marginTop = '10px';
+    saveBtn.style.padding = '10px 20px';
+    saveBtn.style.borderRadius = '6px';
+    saveBtn.style.backgroundColor = '#333';
+    saveBtn.style.color = 'white';
+    saveBtn.style.cursor = 'pointer';
+    saveBtn.addEventListener('click', saveSelections);
+    filterSection.appendChild(saveBtn);
+
     </script>
 </body>
 </html>
