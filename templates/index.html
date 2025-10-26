@@ -61,7 +61,8 @@
             <thead>
                 <tr>
                     <th>Exercise</th>
-                    <th>Sets × Reps</th>
+                    <th>Sets</th>
+                    <th>Reps</th>
                     <th>Notes</th>
                     <th>Muscle Group</th>
                 </tr>
@@ -70,7 +71,8 @@
                 {% for item in plan %}
                 <tr>
                     <td>{{ item['Exercise'] }}</td>
-                    <td>{{ item['Sets x Reps'] }}</td>
+                    <td>{{ item['Sets'] }}</td>
+                    <td>{{ item['Reps'] }}</td>
                     <td>{{ item['Notes'] }}</td>
                     <td>{{ item['Primary Muscle Group'] }}</td>
                 </tr>
