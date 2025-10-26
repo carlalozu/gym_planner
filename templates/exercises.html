@@ -5,9 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercise Library</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f7f8fa; margin: 40px; }
-        h1 { text-align: center; }
-        .nav { text-align: center; margin-bottom: 30px; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f8fa;
+            margin: 40px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .nav {
+            text-align: center;
+            margin-bottom: 30px;
+        }
         .nav a {
             text-decoration: none;
             color: white;
@@ -16,8 +25,82 @@
             border-radius: 5px;
             margin: 0 5px;
         }
-        .nav a:hover { background-color: #555; }
-        .day-section { margin-bottom: 40px; }
+        .nav a:hover {
+            background-color: #555;
+        }
+
+        /* Dropdown container */
+        .filter-section {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .dropdown {
+            display: inline-block;
+            position: relative;
+            width: 260px;
+            text-align: left;
+        }
+
+        .dropdown-btn {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .dropdown-btn::after {
+            content: '▾';
+            font-size: 1.1em;
+            margin-left: 8px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 105%;
+            left: 0;
+            width: 100%;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 100;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .dropdown-content label {
+            display: block;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .dropdown-content label:hover {
+            background: #f5f5f5;
+        }
+
+        .dropdown-content input {
+            margin-right: 8px;
+        }
+
+        .day-section {
+            margin-bottom: 40px;
+            display: none;
+        }
         .day-header {
             font-size: 1.3em;
             margin-bottom: 10px;
@@ -26,10 +109,23 @@
             padding: 6px 12px;
             border-radius: 4px;
         }
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-        th { background: #333; color: white; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #333;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
 <body>
@@ -40,8 +136,22 @@
         <a href="/exercises">📘 Exercise Library</a>
     </div>
 
+    <div class="filter-section">
+        <div class="dropdown" id="dropdown">
+            <button class="dropdown-btn" id="dropdownBtn">Select Day Types</button>
+            <div class="dropdown-content" id="dropdownContent">
+                {% for group in exercise_groups %}
+                    <label>
+                        <input type="checkbox" value="{{ group.day_type }}">
+                        {{ group.day_type }}
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
     {% for group in exercise_groups %}
-    <div class="day-section">
+    <div class="day-section" data-day="{{ group.day_type }}">
         <div class="day-header">{{ group.day_type }}</div>
         <table>
             <thead>
@@ -61,5 +171,50 @@
         </table>
     </div>
     {% endfor %}
+
+    <script>
+        const dropdown = document.getElementById('dropdown');
+        const btn = document.getElementById('dropdownBtn');
+        const content = document.getElementById('dropdownContent');
+        const checkboxes = content.querySelectorAll('input[type="checkbox"]');
+        const sections = document.querySelectorAll('.day-section');
+
+        // Toggle dropdown open/close
+        btn.addEventListener('click', () => {
+            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Close dropdown if clicking outside
+        window.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target)) {
+                content.style.display = 'none';
+            }
+        });
+
+        // Handle selection changes
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                const selected = Array.from(checkboxes)
+                    .filter(c => c.checked)
+                    .map(c => c.value);
+
+                // Update button text
+                if (selected.length === 0) {
+                    btn.textContent = 'Select Day Types';
+                } else {
+                    btn.textContent = selected.join(', ');
+                }
+
+                // Show/hide tables
+                sections.forEach(section => {
+                    if (selected.includes(section.dataset.day)) {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
