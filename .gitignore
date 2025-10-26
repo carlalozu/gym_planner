@@ -1,0 +1,17 @@
+# Environment and cache
+venv/
+__pycache__/
+*.pyc
+
+# Config and environment files
+config.py
+.env
+
+# OS / IDE files
+.DS_Store
+.idea/
+.vscode/
+
+# CSVs or other local data files (optional)
+*.ipynb
+*.csv

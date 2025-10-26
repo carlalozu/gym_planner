@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise Library</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f7f8fa; margin: 40px; }
+        h1 { text-align: center; }
+        .nav { text-align: center; margin-bottom: 30px; }
+        .nav a {
+            text-decoration: none;
+            color: white;
+            background-color: #333;
+            padding: 10px 16px;
+            border-radius: 5px;
+            margin: 0 5px;
+        }
+        .nav a:hover { background-color: #555; }
+        .day-section { margin-bottom: 40px; }
+        .day-header {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #222;
+            background: #e3e3e3;
+            padding: 6px 12px;
+            border-radius: 4px;
+        }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background: #333; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>🏋️ Gym Planner</h1>
+
+    <div class="nav">
+        <a href="/">🏠 Today’s Plan</a>
+        <a href="/exercises">📘 Exercise Library</a>
+    </div>
+
+    {% for group in exercise_groups %}
+    <div class="day-section">
+        <div class="day-header">{{ group.day_type }}</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Exercise</th>
+                    <th>Primary Muscle Group</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ex in group.exercises %}
+                <tr>
+                    <td>{{ ex['Exercise'] }}</td>
+                    <td>{{ ex['Primary Muscle Group'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+</body>
+</html>
