@@ -32,6 +32,7 @@
         tr:nth-child(even) { background-color: #f2f2f2; }
         .message { text-align: center; font-size: 1.2em; color: #888; margin-top: 40px; }
         .day-header { text-align: center; font-size: 1.3em; margin-top: 20px; color: #333; font-weight: bold; }
+        .edit-controls { text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -40,9 +41,8 @@
     <div class="nav">
         <a href="/">🏠 Today’s Plan</a>
         <a href="/exercises">📘 Exercise Library</a>
-        <a href="/selected">⭐ Selected Exercises</a> <!-- NEW TAB -->
+        <a href="/selected">⭐ Selected Exercises</a>
     </div>
-
 
     <div class="controls">
         <form method="POST">
@@ -59,7 +59,13 @@
     {% if plan %}
         <div class="day-header">{{ workout_type }} — {{ selected_date }}</div>
 
-        <table>
+        <!-- Edit and Save buttons -->
+        <div class="edit-controls">
+            <button id="editBtn">📝 Edit Plan</button>
+            <button id="saveBtn" style="display:none;">💾 Save Changes</button>
+        </div>
+
+        <table id="planTable">
             <thead>
                 <tr>
                     <th>Exercise</th>
@@ -81,6 +87,58 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        <script>
+            const editBtn = document.getElementById('editBtn');
+            const saveBtn = document.getElementById('saveBtn');
+            const table = document.getElementById('planTable');
+            const date = "{{ selected_date }}";
+
+            let editing = false;
+
+            // 📝 Enable editing
+            editBtn.addEventListener('click', () => {
+                editing = true;
+                saveBtn.style.display = 'inline-block';
+                editBtn.style.display = 'none';
+
+                // Make table cells editable except Exercise & Muscle Group
+                table.querySelectorAll('tbody tr').forEach(row => {
+                    const editableCells = row.querySelectorAll('td:nth-child(2), td:nth-child(3), td:nth-child(4)');
+                    editableCells.forEach(td => td.contentEditable = true);
+                });
+            });
+
+            // 💾 Save edits back to server
+            saveBtn.addEventListener('click', async () => {
+                const rows = Array.from(table.querySelectorAll('tbody tr')).map(row => {
+                    const cells = row.querySelectorAll('td');
+                    return {
+                        Exercise: cells[0].textContent.trim(),
+                        Sets: cells[1].textContent.trim(),
+                        Reps: cells[2].textContent.trim(),
+                        Weight: cells[3].textContent.trim(),
+                        PrimaryMuscleGroup: cells[4].textContent.trim()
+                    };
+                });
+
+                const res = await fetch('/save_plan', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ date, plan: rows })
+                });
+
+                const result = await res.json();
+                alert(result.message);
+
+                // Disable editing again
+                table.querySelectorAll('td[contenteditable="true"]').forEach(td => td.contentEditable = false);
+                editBtn.style.display = 'inline-block';
+                saveBtn.style.display = 'none';
+                editing = false;
+            });
+        </script>
+
     {% else %}
         <div class="message">{{ message }}</div>
     {% endif %}

@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import pandas as pd
 from datetime import datetime
 import config
+from flask import jsonify
 
 app = Flask(__name__)
 
@@ -78,6 +79,37 @@ def show_exercises():
 def show_selected():
     return render_template('selected.html')
 
+@app.route('/save_plan', methods=['POST'])
+def save_plan():
+    data = request.get_json()
+    date = data.get('date')
+    plan = data.get('plan', [])
+
+    if not plan:
+        return jsonify({'status': 'error', 'message': 'No data received'})
+
+    csv_path = 'gym_routines_with_muscles.csv'
+    df = pd.read_csv(csv_path)
+
+    # Remove existing rows for that date (replace plan)
+    df = df[df['Date'] != date]
+
+    # Add the updated plan
+    for item in plan:
+        new_row = {
+            'Date': date,
+            'Exercise': item['Exercise'],
+            'Sets': item['Sets'],
+            'Reps': item['Reps'],
+            'Weight': item['Weight'],
+            'Primary Muscle Group': item['PrimaryMuscleGroup'],
+            'Workout Type': item['Workout Type']
+        }
+        df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+
+    df.to_csv(csv_path, index=False)
+
+    return jsonify({'status': 'success', 'message': f'✅ Plan for {date} saved successfully!'})
 
 if __name__ == '__main__':
     app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)
