@@ -32,6 +32,11 @@ def show_plan():
 
     workout_type = plan.iloc[0]['Workout Type']
     plan_records = plan.to_dict(orient='records')
+    # match exercise names with their primary muscle groups
+    exercise_muscle_map = dict(zip(exercise_df['Exercise'], exercise_df['Primary Muscle Group']))
+    for record in plan_records:
+        exercise_name = record['Exercise']
+        record['Primary Muscle Group'] = exercise_muscle_map.get(exercise_name, 'N/A')
 
     return render_template('index.html',
                            dates=available_dates,
@@ -43,15 +48,32 @@ def show_plan():
 
 @app.route('/exercises')
 def show_exercises():
-    # Group exercises by Day Type
-    grouped = exercise_df.groupby('Day Type')
+    # --- 🧠 Split multi-day entries (e.g. "Arms/Push Day" -> ["Arms", "Push Day"]) ---
+    expanded_rows = []
 
+    for _, row in exercise_df.iterrows():
+        # Split by "/" and clean whitespace
+        day_types = [d.strip() for d in str(row['Day Type']).split('/') if d.strip()]
+        for day in day_types:
+            expanded_rows.append({
+                'Exercise': row['Exercise'],
+                'Primary Muscle Group': row['Primary Muscle Group'],
+                'Day Type': day
+            })
+
+    expanded_df = pd.DataFrame(expanded_rows)
+
+    # Group exercises by the cleaned day types
     exercise_groups = []
-    for day_type, group in grouped:
+    for day_type, group in expanded_df.groupby('Day Type'):
         exercises = group[['Exercise', 'Primary Muscle Group']].to_dict(orient='records')
         exercise_groups.append({'day_type': day_type, 'exercises': exercises})
 
+    # Sort alphabetically for nicer dropdown display
+    exercise_groups = sorted(exercise_groups, key=lambda x: x['day_type'].lower())
+
     return render_template('exercises.html', exercise_groups=exercise_groups)
+
 
 if __name__ == '__main__':
     app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)
