@@ -1,13 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gym Planner</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f7f8fa; margin: 40px; }
-        h1 { text-align: center; }
-        .nav { text-align: center; margin-bottom: 30px; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f8fa;
+            margin: 40px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .nav {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
         .nav a {
             text-decoration: none;
             color: white;
@@ -16,25 +29,79 @@
             border-radius: 5px;
             margin: 0 5px;
         }
-        .nav a:hover { background-color: #555; }
-        .controls { text-align: center; margin-bottom: 20px; }
-        select, button {
+
+        .nav a:hover {
+            background-color: #555;
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        select,
+        button {
             padding: 8px 12px;
             font-size: 1em;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
-        button { background-color: #333; color: white; cursor: pointer; }
-        button:hover { background-color: #555; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
-        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-        th { background: #333; color: white; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
-        .message { text-align: center; font-size: 1.2em; color: #888; margin-top: 40px; }
-        .day-header { text-align: center; font-size: 1.3em; margin-top: 20px; color: #333; font-weight: bold; }
-        .edit-controls { text-align: center; margin-top: 20px; }
+
+        button {
+            background-color: #333;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background: #333;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .message {
+            text-align: center;
+            font-size: 1.2em;
+            color: #888;
+            margin-top: 40px;
+        }
+
+        .day-header {
+            text-align: center;
+            font-size: 1.3em;
+            margin-top: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .edit-controls {
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
+
 <body>
     <h1>🏋️ Gym Planner</h1>
 
@@ -49,7 +116,7 @@
             <label for="date">Select a date:</label>
             <select name="date" id="date">
                 {% for d in dates %}
-                    <option value="{{ d }}" {% if d == selected_date %}selected{% endif %}>{{ d }}</option>
+                <option value="{{ d }}" {% if d==selected_date %}selected{% endif %}>{{ d }}</option>
                 {% endfor %}
             </select>
             <button type="submit">View Plan</button>
@@ -57,90 +124,97 @@
     </div>
 
     {% if plan %}
-        <div class="day-header">{{ workout_type }} — {{ selected_date }}</div>
+    <div class="day-header">{{ workout_type }} — {{ selected_date }}</div>
 
-        <!-- Edit and Save buttons -->
-        <div class="edit-controls">
-            <button id="editBtn">📝 Edit Plan</button>
-            <button id="saveBtn" style="display:none;">💾 Save Changes</button>
-        </div>
+    <!-- Edit and Save buttons -->
+    <div class="edit-controls">
+        <button id="editBtn">📝 Edit Plan</button>
+        <button id="saveBtn" style="display:none;">💾 Save Changes</button>
+    </div>
 
-        <table id="planTable">
-            <thead>
-                <tr>
-                    <th>Exercise</th>
-                    <th>Sets</th>
-                    <th>Reps</th>
-                    <th>Weight</th>
-                    <th>Muscle Group</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in plan %}
-                <tr>
-                    <td>{{ item['Exercise'] }}</td>
-                    <td>{{ item['Sets'] }}</td>
-                    <td>{{ item['Reps'] }}</td>
-                    <td>{{ item['Weight'] }}</td>
-                    <td>{{ item['Primary Muscle Group'] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <table id="planTable">
+        <thead>
+            <tr>
+                <th>Exercise</th>
+                <th>Sets</th>
+                <th>Reps</th>
+                <th>Weight</th>
+                <th>Muscle Group</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in plan %}
+            <tr>
+                <td>{{ item['Exercise'] }}</td>
+                <td>{{ item['Sets'] }}</td>
+                <td>{{ item['Reps'] }}</td>
+                <td>{{ item['Weight'] }}</td>
+                <td>{{ item['Primary Muscle Group'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-        <script>
-            const editBtn = document.getElementById('editBtn');
-            const saveBtn = document.getElementById('saveBtn');
-            const table = document.getElementById('planTable');
-            const date = "{{ selected_date }}";
+    <script>
+        const editBtn = document.getElementById('editBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const table = document.getElementById('planTable');
+        const date = "{{ selected_date }}";
+        const workoutType = "{{ workout_type }}";  // ✅ Capture workout type
 
-            let editing = false;
+        let editing = false;
 
-            // 📝 Enable editing
-            editBtn.addEventListener('click', () => {
-                editing = true;
-                saveBtn.style.display = 'inline-block';
-                editBtn.style.display = 'none';
+        // 📝 Enable editing
+        editBtn.addEventListener('click', () => {
+            editing = true;
+            saveBtn.style.display = 'inline-block';
+            editBtn.style.display = 'none';
 
-                // Make table cells editable except Exercise & Muscle Group
-                table.querySelectorAll('tbody tr').forEach(row => {
-                    const editableCells = row.querySelectorAll('td:nth-child(2), td:nth-child(3), td:nth-child(4)');
-                    editableCells.forEach(td => td.contentEditable = true);
-                });
+            // Make table cells editable except Exercise & Muscle Group
+            table.querySelectorAll('tbody tr').forEach(row => {
+                const editableCells = row.querySelectorAll('td:nth-child(2), td:nth-child(3), td:nth-child(4)');
+                editableCells.forEach(td => td.contentEditable = true);
+            });
+        });
+
+        // 💾 Save edits back to server
+        saveBtn.addEventListener('click', async () => {
+            const rows = Array.from(table.querySelectorAll('tbody tr')).map(row => {
+                const cells = row.querySelectorAll('td');
+                return {
+                    Exercise: cells[0].textContent.trim(),
+                    Sets: cells[1].textContent.trim(),
+                    Reps: cells[2].textContent.trim(),
+                    Weight: cells[3].textContent.trim(),
+                    PrimaryMuscleGroup: cells[4].textContent.trim()
+                };
             });
 
-            // 💾 Save edits back to server
-            saveBtn.addEventListener('click', async () => {
-                const rows = Array.from(table.querySelectorAll('tbody tr')).map(row => {
-                    const cells = row.querySelectorAll('td');
-                    return {
-                        Exercise: cells[0].textContent.trim(),
-                        Sets: cells[1].textContent.trim(),
-                        Reps: cells[2].textContent.trim(),
-                        Weight: cells[3].textContent.trim(),
-                        PrimaryMuscleGroup: cells[4].textContent.trim()
-                    };
-                });
-
-                const res = await fetch('/save_plan', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ date, plan: rows })
-                });
-
-                const result = await res.json();
-                alert(result.message);
-
-                // Disable editing again
-                table.querySelectorAll('td[contenteditable="true"]').forEach(td => td.contentEditable = false);
-                editBtn.style.display = 'inline-block';
-                saveBtn.style.display = 'none';
-                editing = false;
+            const res = await fetch('/save_plan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    date: date,
+                    plan: rows,
+                    workout_type: workoutType
+                })
             });
-        </script>
+
+            const result = await res.json();
+            alert(result.message);
+
+            // Disable editing again
+            table.querySelectorAll('td[contenteditable="true"]').forEach(td => td.contentEditable = false);
+            editBtn.style.display = 'inline-block';
+            saveBtn.style.display = 'none';
+            editing = false;
+        });
+    </script>
+
 
     {% else %}
-        <div class="message">{{ message }}</div>
+    <div class="message">{{ message }}</div>
     {% endif %}
 </body>
+
 </html>

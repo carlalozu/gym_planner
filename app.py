@@ -84,6 +84,7 @@ def save_plan():
     data = request.get_json()
     date = data.get('date')
     plan = data.get('plan', [])
+    workout_type = data.get('workout_type', 'N/A')
 
     if not plan:
         return jsonify({'status': 'error', 'message': 'No data received'})
@@ -98,12 +99,12 @@ def save_plan():
     for item in plan:
         new_row = {
             'Date': date,
+            'Workout Type': workout_type,
             'Exercise': item['Exercise'],
             'Sets': item['Sets'],
             'Reps': item['Reps'],
             'Weight': item['Weight'],
             'Primary Muscle Group': item['PrimaryMuscleGroup'],
-            'Workout Type': item['Workout Type']
         }
         df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
 
