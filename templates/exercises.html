@@ -1,43 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Exercise Library{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exercise Library</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-
-    <style>
-        th:first-child,
-        td:first-child {
-            width: 60px;
-            text-align: center;
-        }
-
-        th:first-child input[type="checkbox"] {
-            transform: scale(1.2);
-            cursor: pointer;
-        }
-
-        th {
-            vertical-align: middle;
-        }
-    </style>
-</head>
-
-<body>
-    <h1>🏋️ Gym Planner</h1>
-
-    <div class="nav">
-        <a href="/">🏠 Today’s Plan</a>
-        <a href="/exercises">📘 Exercise Library</a>
-        <a href="/history">⭐ Exercise History</a>
-    </div>
+{% block content %}
 
     <div class="filter-section">
         <div class="dropdown" id="dayDropdown">
-            <button class="dropdown-btn" id="dayBtn">Select Day Types</button>
-            <div class="dropdown-content" id="dayContent">
+            <button class="dropdown-btn" id="dayBtn">Select Muscle Group</button>
+            <div class="dropdown-content" id="groupContent">
                 {% for group in exercise_groups %}
                 <label>
                     <input type="checkbox" value="{{ group.day_type }}">
@@ -78,7 +47,7 @@
         // --- Dropdown filter logic ---
         const dropdown = document.getElementById('dayDropdown');
         const btn = document.getElementById('dayBtn');
-        const content = document.getElementById('dayContent');
+        const content = document.getElementById('groupContent');
         const checkboxes = content.querySelectorAll('input[type="checkbox"]');
         const sections = document.querySelectorAll('.day-section');
 
@@ -98,7 +67,7 @@
                     .filter(c => c.checked)
                     .map(c => c.value);
 
-                btn.textContent = selected.length === 0 ? 'Select Day Types' : selected.join(', ');
+                btn.textContent = selected.length === 0 ? 'Select Muscle Group' : selected.join(', ');
 
                 sections.forEach(section => {
                     section.style.display = selected.length === 0 || selected.includes(section.dataset.day)
@@ -134,7 +103,7 @@
             });
         });
 
-        // --- Save selections to localStorage ---
+        // --- Save selections to localStorage and go to history---
         function saveSelections() {
             const selectedExercises = [];
             document.querySelectorAll('.select-exercise:checked').forEach(box => {
@@ -144,22 +113,15 @@
                 selectedExercises.push({ exercise, muscle });
             });
             localStorage.setItem('selectedExercises', JSON.stringify(selectedExercises));
-            alert('✅ Saved your selected exercises!');
+            window.location.href = '/history';
         }
 
         // Add a "Save Selection" button below the filter
         const filterSection = document.querySelector('.filter-section');
         const saveBtn = document.createElement('button');
-        saveBtn.textContent = '💾 Save Selected Exercises';
-        saveBtn.style.marginTop = '10px';
-        saveBtn.style.padding = '10px 20px';
-        saveBtn.style.borderRadius = '6px';
-        saveBtn.style.backgroundColor = '#333';
-        saveBtn.style.color = 'white';
-        saveBtn.style.cursor = 'pointer';
+        saveBtn.textContent = '💾 Show Exercise History';
         saveBtn.addEventListener('click', saveSelections);
         filterSection.appendChild(saveBtn);
     </script>
-</body>
 
-</html>
+{% endblock %}

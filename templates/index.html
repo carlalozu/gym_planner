@@ -1,137 +1,122 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Exercise Library{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gym Planner</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
+{% block content %}
 
-<body>
-    <h1>🏋️ Gym Planner</h1>
-
-    <div class="nav">
-        <a href="/">🏠 Today’s Plan</a>
-        <a href="/exercises">📘 Exercise Library</a>
-        <a href="/history">⭐ Exercise History</a>
-    </div>
-
-    <div class="controls">
-        <form method="POST">
-            <label for="date">Select a date:</label>
-            <select name="date" id="date">
-                {% for d in dates %}
-                <option value="{{ d }}" {% if d==selected_date %}selected{% endif %}>{{ d }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">View Plan</button>
-        </form>
-    </div>
-
-    {% if plan %}
-    <div class="day-header">{{ workout_type }} — {{ selected_date }}</div>
-    
-    <table id="planTable">
-        <thead>
-            <tr>
-                <th>Exercise</th>
-                <th>Sets</th>
-                <th>Reps</th>
-                <th>Weight</th>
-                <th>Muscle Group</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in plan %}
-            <tr>
-                <td>{{ item['Exercise'] }}</td>
-                <td>{{ item['Sets'] }}</td>
-                <td>{{ item['Reps'] }}</td>
-                <td>{{ item['Weight'] }}</td>
-                <td>{{ item['Primary Muscle Group'] }}</td>
-            </tr>
+<div class="controls">
+    <form method="POST">
+        <label for="date">Select a date:</label>
+        <select name="date" id="date">
+            {% for d in dates %}
+            <option value="{{ d }}" {% if d==selected_date %}selected{% endif %}>{{ d }}</option>
             {% endfor %}
-        </tbody>
-    </table>
+        </select>
+        <button type="submit">View Plan</button>
+    </form>
+</div>
 
-    <!-- Edit and Save buttons -->
-    <div class="edit-controls">
-        <button id="editBtn">📝 Edit Plan</button>
-        <button id="saveBtn" style="display:none;">💾 Save Changes</button>
-        <button id="cancelBtn" style="display:none;">❌ Cancel</button>
-    </div>
-    
-    <script>
-        const editBtn = document.getElementById('editBtn');
-        const saveBtn = document.getElementById('saveBtn');
-        const table = document.getElementById('planTable');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const date = "{{ selected_date }}";
-        const workoutType = "{{ workout_type }}"
+{% if plan %}
+<div class="day-header">{{ workout_type }} — {{ selected_date }}</div>
 
-        let editing = false;
+<table id="planTable">
+    <thead>
+        <tr>
+            <th>Exercise</th>
+            <th>Sets</th>
+            <th>Reps</th>
+            <th>Weight</th>
+            <th>Muscle Group</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in plan %}
+        <tr>
+            <td>{{ item['Exercise'] }}</td>
+            <td>{{ item['Sets'] }}</td>
+            <td>{{ item['Reps'] }}</td>
+            <td>{{ item['Weight'] }}</td>
+            <td>{{ item['Primary Muscle Group'] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-        // Enable editing
-        editBtn.addEventListener('click', () => {
-            editing = true;
-            saveBtn.style.display = 'inline-block';
-            cancelBtn.style.display = 'inline-block';
-            editBtn.style.display = 'none';
+<!-- Edit and Save buttons -->
+<div class="edit-controls">
+    <button id="editBtn">📝 Edit Plan</button>
+    <button id="saveBtn" style="display:none;">💾 Save Changes</button>
+    <button id="cancelBtn" style="display:none;">❌ Cancel</button>
+</div>
 
-            // Make table cells editable except Exercise & Muscle Group
-            table.querySelectorAll('tbody tr').forEach(row => {
-                const editableCells = row.querySelectorAll('td:nth-child(2), td:nth-child(3), td:nth-child(4)');
-                editableCells.forEach(td => td.contentEditable = true);
-            });
+<script>
+    const editBtn = document.getElementById('editBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const table = document.getElementById('planTable');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const date = "{{ selected_date }}";
+    const workoutType = "{{ workout_type }}"
+
+    let editing = false;
+
+    // Enable editing
+    editBtn.addEventListener('click', () => {
+        editing = true;
+        saveBtn.style.display = 'inline-block';
+        cancelBtn.style.display = 'inline-block';
+        editBtn.style.display = 'none';
+
+        // Make table cells editable except Exercise & Muscle Group
+        table.querySelectorAll('tbody tr').forEach(row => {
+            const editableCells = row.querySelectorAll('td:nth-child(2), td:nth-child(3), td:nth-child(4)');
+            editableCells.forEach(td => td.contentEditable = true);
+        });
+    });
+
+    // Add cancel button
+    cancelBtn.addEventListener('click', () => {
+        if (editing) {
+            // Reload the page to discard changes
+            location.reload();
+        }
+    });
+
+    // Save edits back to server
+    saveBtn.addEventListener('click', async () => {
+        const rows = Array.from(table.querySelectorAll('tbody tr')).map(row => {
+            const cells = row.querySelectorAll('td');
+            return {
+                Exercise: cells[0].textContent.trim(),
+                Sets: cells[1].textContent.trim(),
+                Reps: cells[2].textContent.trim(),
+                Weight: cells[3].textContent.trim(),
+                PrimaryMuscleGroup: cells[4].textContent.trim()
+            };
         });
 
-        // Add cancel button
-        cancelBtn.addEventListener('click', () => {
-            if (editing) {
-                // Reload the page to discard changes
-                location.reload();
-            }
+        const res = await fetch('/save_plan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                date: date,
+                plan: rows,
+                workout_type: workoutType
+            })
         });
 
-        // Save edits back to server
-        saveBtn.addEventListener('click', async () => {
-            const rows = Array.from(table.querySelectorAll('tbody tr')).map(row => {
-                const cells = row.querySelectorAll('td');
-                return {
-                    Exercise: cells[0].textContent.trim(),
-                    Sets: cells[1].textContent.trim(),
-                    Reps: cells[2].textContent.trim(),
-                    Weight: cells[3].textContent.trim(),
-                    PrimaryMuscleGroup: cells[4].textContent.trim()
-                };
-            });
+        const result = await res.json();
+        alert(result.message);
 
-            const res = await fetch('/save_plan', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    date: date,
-                    plan: rows,
-                    workout_type: workoutType
-                })
-            });
-
-            const result = await res.json();
-            alert(result.message);
-
-            // Disable editing again
-            table.querySelectorAll('td[contenteditable="true"]').forEach(td => td.contentEditable = false);
-            editBtn.style.display = 'inline-block';
-            saveBtn.style.display = 'none';
-            editing = false;
-        });
-    </script>
+        // Disable editing again
+        table.querySelectorAll('td[contenteditable="true"]').forEach(td => td.contentEditable = false);
+        editBtn.style.display = 'inline-block';
+        saveBtn.style.display = 'none';
+        editing = false;
+    });
+</script>
 
 
-    {% else %}
-    <div class="message">{{ message }}</div>
-    {% endif %}
-</body>
+{% else %}
+<div class="message">{{ message }}</div>
+{% endif %}
 
-</html>
+{% endblock %}

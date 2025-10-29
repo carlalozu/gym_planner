@@ -1,37 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Exercise Library{% endblock %}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exercise History</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  <style>
-    #exerciseContainer {
-      margin-top: 40px;
-    }
-
-    table td:first-child {
-      font-weight: 500;
-    }
-
-    .loading {
-      text-align: center;
-      font-size: 1.1em;
-      color: #777;
-      margin-top: 20px;
-    }
-  </style>
-</head>
-
-<body>
-  <h1>🏋️ Gym Planner</h1>
-
-  <div class="nav">
-    <a href="/">🏠 Today’s Plan</a>
-    <a href="/exercises">📘 Exercise Library</a>
-    <a href="/history">⭐ Exercise History</a>
-  </div>
+{% block content %}
 
   <div class="filter-section">
     <h2 style="color:#4f2ea8;">📜 Exercise History</h2>
@@ -83,6 +53,5 @@
         });
     }
   </script>
-</body>
 
-</html>
+{% endblock %}

@@ -139,5 +139,9 @@ def history_data():
 
     return jsonify(filtered_df.to_dict(orient="records"))
 
+@app.route("/newplan")
+def new_plan():
+    return render_template("newplan.html")
+
 if __name__ == '__main__':
     app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)
