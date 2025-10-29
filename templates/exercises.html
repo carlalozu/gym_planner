@@ -3,125 +3,125 @@
 
 {% block content %}
 
-    <div class="filter-section">
-        <div class="dropdown" id="dayDropdown">
-            <button class="dropdown-btn" id="dayBtn">Select Muscle Group</button>
-            <div class="dropdown-content" id="groupContent">
-                {% for group in exercise_groups %}
-                <label>
-                    <input type="checkbox" value="{{ group.day_type }}">
-                    {{ group.day_type }}
-                </label>
-                {% endfor %}
-            </div>
+<div class="filter-section">
+    <div class="dropdown" id="dayDropdown">
+        <button class="dropdown-btn" id="dayBtn">Select Muscle Group</button>
+        <div class="dropdown-content" id="groupContent">
+            {% for group in exercise_groups %}
+            <label>
+                <input type="checkbox" value="{{ group.day_type }}">
+                {{ group.day_type }}
+            </label>
+            {% endfor %}
         </div>
     </div>
+</div>
 
-    {% for group in exercise_groups %}
-    <div class="day-section" data-day="{{ group.day_type }}">
-        <div class="day-header">{{ group.day_type }}</div>
-        <table>
-            <thead>
-                <tr>
-                    <th>
-                        <input type="checkbox" class="select-all" title="Select all exercises in {{ group.day_type }}">
-                    </th>
-                    <th>Exercise</th>
-                    <th>Primary Muscle Group</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ex in group.exercises %}
-                <tr data-exercise="{{ ex['Exercise'] }}">
-                    <td><input type="checkbox" class="select-exercise"></td>
-                    <td>{{ ex['Exercise'] }}</td>
-                    <td>{{ ex['Primary Muscle Group'] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% endfor %}
+{% for group in exercise_groups %}
+<div class="day-section" data-day="{{ group.day_type }}">
+    <div class="day-header">{{ group.day_type }}</div>
+    <table>
+        <thead>
+            <tr>
+                <th>
+                    <input type="checkbox" class="select-all" title="Select all exercises in {{ group.day_type }}">
+                </th>
+                <th>Exercise</th>
+                <th>Primary Muscle Group</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ex in group.exercises %}
+            <tr data-exercise="{{ ex['Exercise'] }}">
+                <td><input type="checkbox" class="select-exercise"></td>
+                <td>{{ ex['Exercise'] }}</td>
+                <td>{{ ex['Primary Muscle Group'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endfor %}
 
-    <script>
-        // --- Dropdown filter logic ---
-        const dropdown = document.getElementById('dayDropdown');
-        const btn = document.getElementById('dayBtn');
-        const content = document.getElementById('groupContent');
-        const checkboxes = content.querySelectorAll('input[type="checkbox"]');
-        const sections = document.querySelectorAll('.day-section');
+<script>
+    // --- Dropdown filter logic ---
+    const dropdown = document.getElementById('dayDropdown');
+    const btn = document.getElementById('dayBtn');
+    const content = document.getElementById('groupContent');
+    const checkboxes = content.querySelectorAll('input[type="checkbox"]');
+    const sections = document.querySelectorAll('.day-section');
 
-        btn.addEventListener('click', () => {
-            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+    btn.addEventListener('click', () => {
+        content.style.display = content.style.display === 'block' ? 'none' : 'block';
+    });
+
+    window.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target)) {
+            content.style.display = 'none';
+        }
+    });
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            const selected = Array.from(checkboxes)
+                .filter(c => c.checked)
+                .map(c => c.value);
+
+            btn.textContent = selected.length === 0 ? 'Select Muscle Group' : selected.join(', ');
+
+            sections.forEach(section => {
+                section.style.display = selected.length === 0 || selected.includes(section.dataset.day)
+                    ? 'block'
+                    : 'none';
+            });
         });
+    });
 
-        window.addEventListener('click', (e) => {
-            if (!dropdown.contains(e.target)) {
-                content.style.display = 'none';
+    // --- Exercise selection logic ---
+    const exerciseCheckboxes = document.querySelectorAll('.select-exercise');
+    exerciseCheckboxes.forEach(box => {
+        box.addEventListener('change', (e) => {
+            const row = e.target.closest('tr');
+            if (e.target.checked) {
+                row.classList.add('selected-row');
+            } else {
+                row.classList.remove('selected-row');
             }
         });
+    });
 
-        checkboxes.forEach(cb => {
-            cb.addEventListener('change', () => {
-                const selected = Array.from(checkboxes)
-                    .filter(c => c.checked)
-                    .map(c => c.value);
-
-                btn.textContent = selected.length === 0 ? 'Select Muscle Group' : selected.join(', ');
-
-                sections.forEach(section => {
-                    section.style.display = selected.length === 0 || selected.includes(section.dataset.day)
-                        ? 'block'
-                        : 'none';
-                });
+    // --- Select All per category ---
+    const selectAllBoxes = document.querySelectorAll('.select-all');
+    selectAllBoxes.forEach(selectAll => {
+        selectAll.addEventListener('change', (e) => {
+            const daySection = e.target.closest('.day-section');
+            const checkboxes = daySection.querySelectorAll('.select-exercise');
+            checkboxes.forEach(cb => {
+                cb.checked = e.target.checked;
+                cb.dispatchEvent(new Event('change')); // triggers row highlight
             });
         });
+    });
 
-        // --- Exercise selection logic ---
-        const exerciseCheckboxes = document.querySelectorAll('.select-exercise');
-        exerciseCheckboxes.forEach(box => {
-            box.addEventListener('change', (e) => {
-                const row = e.target.closest('tr');
-                if (e.target.checked) {
-                    row.classList.add('selected-row');
-                } else {
-                    row.classList.remove('selected-row');
-                }
-            });
+    // --- Save selections to localStorage and go to history---
+    function saveSelections() {
+        const selectedExercises = [];
+        document.querySelectorAll('.select-exercise:checked').forEach(box => {
+            const row = box.closest('tr');
+            const exercise = row.dataset.exercise;
+            const muscle = row.children[2].textContent;
+            selectedExercises.push({ exercise, muscle });
         });
+        localStorage.setItem('selectedExercises', JSON.stringify(selectedExercises));
+        window.location.href = '/history';
+    }
 
-        // --- Select All per category ---
-        const selectAllBoxes = document.querySelectorAll('.select-all');
-        selectAllBoxes.forEach(selectAll => {
-            selectAll.addEventListener('change', (e) => {
-                const daySection = e.target.closest('.day-section');
-                const checkboxes = daySection.querySelectorAll('.select-exercise');
-                checkboxes.forEach(cb => {
-                    cb.checked = e.target.checked;
-                    cb.dispatchEvent(new Event('change')); // triggers row highlight
-                });
-            });
-        });
-
-        // --- Save selections to localStorage and go to history---
-        function saveSelections() {
-            const selectedExercises = [];
-            document.querySelectorAll('.select-exercise:checked').forEach(box => {
-                const row = box.closest('tr');
-                const exercise = row.dataset.exercise;
-                const muscle = row.children[2].textContent;
-                selectedExercises.push({ exercise, muscle });
-            });
-            localStorage.setItem('selectedExercises', JSON.stringify(selectedExercises));
-            window.location.href = '/history';
-        }
-
-        // Add a "Save Selection" button below the filter
-        const filterSection = document.querySelector('.filter-section');
-        const saveBtn = document.createElement('button');
-        saveBtn.textContent = '💾 Show Exercise History';
-        saveBtn.addEventListener('click', saveSelections);
-        filterSection.appendChild(saveBtn);
-    </script>
+    // Add a "Save Selection" button below the filter
+    const filterSection = document.querySelector('.filter-section');
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = '💾 Show Exercise History';
+    saveBtn.addEventListener('click', saveSelections);
+    filterSection.appendChild(saveBtn);
+</script>
 
 {% endblock %}

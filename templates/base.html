@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}Gym Planner{% endblock %}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Gym Planner{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 
 <body>
-  <!-- === Header + Navigation === -->
-  <h1>🏋️ Gym Planner</h1>
+    <!-- === Header + Navigation === -->
+    <h1>🏋️ Gym Planner</h1>
 
-  <div class="nav">
-    <a href="/">🏠 Today’s Plan</a>
-    <a href="/exercises">📘 Exercise Library</a>
-    <a href="/history">📜 Exercise History</a>
-    <a href="/newplan">🆕 New Plan</a>
-  </div>
+    <div class="nav">
+        <a href="/">🏠 Today’s Plan</a>
+        <a href="/exercises">📘 Exercise Library</a>
+        <a href="/history">📜 Exercise History</a>
+        <a href="/newplan">🆕 New Plan</a>
+    </div>
 
-  <!-- === Page Content === -->
-  <div class="page-content">
-    {% block content %}{% endblock %}
-  </div>
+    <!-- === Page Content === -->
+    <div class="page-content">
+        {% block content %}{% endblock %}
+    </div>
 </body>
+
 </html>
