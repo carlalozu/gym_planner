@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime
 import config
 from flask import jsonify
+import os
 
 app = Flask(__name__)
 
@@ -75,10 +76,6 @@ def show_exercises():
 
     return render_template('exercises.html', exercise_groups=exercise_groups)
 
-@app.route('/selected')
-def show_selected():
-    return render_template('selected.html')
-
 @app.route('/save_plan', methods=['POST'])
 def save_plan():
     data = request.get_json()
@@ -111,6 +108,36 @@ def save_plan():
     df.to_csv(csv_path, index=False)
 
     return jsonify({'status': 'success', 'message': f'✅ Plan for {date} saved successfully!'})
+
+@app.route("/history")
+def history():
+    # Render page (JS will fetch filtered data)
+    return render_template("history.html")
+
+@app.route("/api/history_data", methods=["POST"])
+def history_data():
+    data = request.get_json()
+    selected_exercises = data.get("exercises", [])
+
+    # --- Load the dataset safely ---
+    csv_path = "gym_routines_with_muscles.csv"
+    if not os.path.exists(csv_path):
+        return jsonify({"error": "CSV file not found"}), 404
+
+    workout_df = pd.read_csv(csv_path)
+
+    # --- Filter only selected exercises ---
+    filtered_df = workout_df[workout_df["Exercise"].isin(selected_exercises)]
+    filtered_df = filtered_df.sort_values(by=["Exercise", "Date"], ascending=[True, True])
+
+    # --- Handle no matches ---
+    if filtered_df.empty:
+        return jsonify([])
+
+    # --- Convert all values to strings (for JSON safety) ---
+    filtered_df = filtered_df.fillna("-").astype(str)
+
+    return jsonify(filtered_df.to_dict(orient="records"))
 
 if __name__ == '__main__':
     app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)

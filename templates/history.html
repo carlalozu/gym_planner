@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exercise History</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <style>
+    #exerciseContainer {
+      margin-top: 40px;
+    }
+
+    table td:first-child {
+      font-weight: 500;
+    }
+
+    .loading {
+      text-align: center;
+      font-size: 1.1em;
+      color: #777;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>🏋️ Gym Planner</h1>
+
+  <div class="nav">
+    <a href="/">🏠 Today’s Plan</a>
+    <a href="/exercises">📘 Exercise Library</a>
+    <a href="/history">⭐ Exercise History</a>
+  </div>
+
+  <div class="filter-section">
+    <h2 style="color:#4f2ea8;">📜 Exercise History</h2>
+  </div>
+
+  <div id="exerciseContainer" class="loading">Loading your exercise history...</div>
+
+  <script>
+    const container = document.getElementById('exerciseContainer');
+    const saved = JSON.parse(localStorage.getItem('selectedExercises') || '[]');
+    const exerciseNames = saved.map(ex => ex.exercise);
+
+    if (exerciseNames.length === 0) {
+      container.innerHTML = '<div class="message">No exercises selected yet 💆‍♀️</div>';
+    } else {
+      fetch('/api/history_data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ exercises: exerciseNames })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (!data || data.length === 0) {
+            container.innerHTML = '<div class="message">No history found for your selected exercises 📭</div>';
+            return;
+          }
+
+          // Create a table
+          let tableHTML = `
+            <table>
+              <thead>
+                <tr>
+                  ${Object.keys(data[0]).map(col => `<th>${col.replace('_', ' ')}</th>`).join('')}
+                </tr>
+              </thead>
+              <tbody>
+                ${data.map(row => `
+                  <tr>
+                    ${Object.values(row).map(v => `<td>${v}</td>`).join('')}
+                  </tr>`).join('')}
+              </tbody>
+            </table>
+          `;
+          container.innerHTML = tableHTML;
+        })
+        .catch(err => {
+          console.error(err);
+          container.innerHTML = '<div class="message">Error loading exercise history ⚠️</div>';
+        });
+    }
+  </script>
+</body>
+
+</html>
