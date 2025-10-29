@@ -31,14 +31,7 @@
 
     {% if plan %}
     <div class="day-header">{{ workout_type }} — {{ selected_date }}</div>
-
-    <!-- Edit and Save buttons -->
-    <div class="edit-controls">
-        <button id="editBtn">📝 Edit Plan</button>
-        <button id="saveBtn" style="display:none;">💾 Save Changes</button>
-        <button id="cancelBtn" style="display:none;">❌ Cancel</button>
-    </div>
-
+    
     <table id="planTable">
         <thead>
             <tr>
@@ -62,6 +55,13 @@
         </tbody>
     </table>
 
+    <!-- Edit and Save buttons -->
+    <div class="edit-controls">
+        <button id="editBtn">📝 Edit Plan</button>
+        <button id="saveBtn" style="display:none;">💾 Save Changes</button>
+        <button id="cancelBtn" style="display:none;">❌ Cancel</button>
+    </div>
+    
     <script>
         const editBtn = document.getElementById('editBtn');
         const saveBtn = document.getElementById('saveBtn');
