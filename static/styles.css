@@ -17,7 +17,10 @@ h1 {
 
 /* === Navigation === */
 .nav {
-    text-align: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
     margin-bottom: 40px;
 }
 
@@ -27,9 +30,9 @@ h1 {
     background: linear-gradient(135deg, #4f2ea8, #7b61ff);
     padding: 10px 18px;
     border-radius: 8px;
-    margin: 0 6px;
     transition: all 0.3s ease;
     box-shadow: 0 3px 6px rgba(79, 46, 168, 0.2);
+    font-size: 0.95em;
 }
 
 .nav a:hover {
@@ -94,7 +97,7 @@ button:hover {
     align-items: center;
     transition: all 0.3s ease;
     color: #333;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .dropdown-btn:hover {
@@ -102,7 +105,7 @@ button:hover {
 }
 
 .dropdown-btn::after {
-    content: '▾';
+    content: "▾";
     font-size: 1.1em;
     margin-left: 8px;
     color: #4f2ea8;
@@ -117,7 +120,7 @@ button:hover {
     background: white;
     border: 1px solid #ddd;
     border-radius: 8px;
-    box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
     z-index: 100;
     max-height: 220px;
     overflow-y: auto;
@@ -134,6 +137,22 @@ button:hover {
 
 .dropdown-content label:hover {
     background: #f0efff;
+}
+
+/* === Dropdown Search === */
+#daySearch {
+    width: 90%;
+    margin: 10px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95em;
+}
+
+#daySearch:focus {
+    outline: none;
+    border-color: #4f2ea8;
+    box-shadow: 0 0 4px rgba(79, 46, 168, 0.3);
 }
 
 /* === Day Section === */
@@ -159,10 +178,11 @@ table {
     background: white;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-th, td {
+th,
+td {
     border: 1px solid #e0e0e0;
     padding: 10px 12px;
     text-align: left;
@@ -204,6 +224,73 @@ input[type="checkbox"].select-exercise {
 
 /* === Animations === */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === Responsive Design === */
+@media (max-width: 900px) {
+    body {
+        margin: 25px 15px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+        margin-bottom: 20px;
+    }
+
+    .nav a {
+        font-size: 0.95em;
+        padding: 10px 14px;
+    }
+
+    .dropdown {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        margin: 20px 10px;
+    }
+
+    h1 {
+        font-size: 1.5em;
+    }
+
+    .nav {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .nav a {
+        flex: 1 1 100%;
+        text-align: center;
+        font-size: 1em;
+        padding: 12px;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    th,
+    td {
+        font-size: 0.9em;
+        padding: 8px;
+    }
+
+    .dropdown-btn {
+        font-size: 0.95em;
+    }
 }
