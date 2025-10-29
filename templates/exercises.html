@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercise Library</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
+
 <body>
     <h1>🏋️ Gym Planner</h1>
 
@@ -20,10 +22,10 @@
             <button class="dropdown-btn" id="dayBtn">Select Day Types</button>
             <div class="dropdown-content" id="dayContent">
                 {% for group in exercise_groups %}
-                    <label>
-                        <input type="checkbox" value="{{ group.day_type }}">
-                        {{ group.day_type }}
-                    </label>
+                <label>
+                    <input type="checkbox" value="{{ group.day_type }}">
+                    {{ group.day_type }}
+                </label>
                 {% endfor %}
             </div>
         </div>
@@ -102,32 +104,33 @@
             });
         });
 
-    // --- ✅ Save selections to localStorage ---
-    function saveSelections() {
-        const selectedExercises = [];
-        document.querySelectorAll('.select-exercise:checked').forEach(box => {
-            const row = box.closest('tr');
-            const exercise = row.dataset.exercise;
-            const muscle = row.children[2].textContent;
-            selectedExercises.push({ exercise, muscle });
-        });
-        localStorage.setItem('selectedExercises', JSON.stringify(selectedExercises));
-        alert('✅ Saved your selected exercises!');
-    }
+        // --- ✅ Save selections to localStorage ---
+        function saveSelections() {
+            const selectedExercises = [];
+            document.querySelectorAll('.select-exercise:checked').forEach(box => {
+                const row = box.closest('tr');
+                const exercise = row.dataset.exercise;
+                const muscle = row.children[2].textContent;
+                selectedExercises.push({ exercise, muscle });
+            });
+            localStorage.setItem('selectedExercises', JSON.stringify(selectedExercises));
+            alert('✅ Saved your selected exercises!');
+        }
 
-    // Add a "Save Selection" button below the filter
-    const filterSection = document.querySelector('.filter-section');
-    const saveBtn = document.createElement('button');
-    saveBtn.textContent = '💾 Save Selected Exercises';
-    saveBtn.style.marginTop = '10px';
-    saveBtn.style.padding = '10px 20px';
-    saveBtn.style.borderRadius = '6px';
-    saveBtn.style.backgroundColor = '#333';
-    saveBtn.style.color = 'white';
-    saveBtn.style.cursor = 'pointer';
-    saveBtn.addEventListener('click', saveSelections);
-    filterSection.appendChild(saveBtn);
+        // Add a "Save Selection" button below the filter
+        const filterSection = document.querySelector('.filter-section');
+        const saveBtn = document.createElement('button');
+        saveBtn.textContent = '💾 Save Selected Exercises';
+        saveBtn.style.marginTop = '10px';
+        saveBtn.style.padding = '10px 20px';
+        saveBtn.style.borderRadius = '6px';
+        saveBtn.style.backgroundColor = '#333';
+        saveBtn.style.color = 'white';
+        saveBtn.style.cursor = 'pointer';
+        saveBtn.addEventListener('click', saveSelections);
+        filterSection.appendChild(saveBtn);
 
     </script>
 </body>
+
 </html>
