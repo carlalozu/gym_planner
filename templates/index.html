@@ -36,6 +36,7 @@
     <div class="edit-controls">
         <button id="editBtn">📝 Edit Plan</button>
         <button id="saveBtn" style="display:none;">💾 Save Changes</button>
+        <button id="cancelBtn" style="display:none;">❌ Cancel</button>
     </div>
 
     <table id="planTable">
@@ -65,15 +66,17 @@
         const editBtn = document.getElementById('editBtn');
         const saveBtn = document.getElementById('saveBtn');
         const table = document.getElementById('planTable');
+        const cancelBtn = document.getElementById('cancelBtn');
         const date = "{{ selected_date }}";
-        const workoutType = "{{ workout_type }}";  // ✅ Capture workout type
+        const workoutType = "{{ workout_type }}"
 
         let editing = false;
 
-        // 📝 Enable editing
+        // Enable editing
         editBtn.addEventListener('click', () => {
             editing = true;
             saveBtn.style.display = 'inline-block';
+            cancelBtn.style.display = 'inline-block';
             editBtn.style.display = 'none';
 
             // Make table cells editable except Exercise & Muscle Group
@@ -83,7 +86,15 @@
             });
         });
 
-        // 💾 Save edits back to server
+        // Add cancel button
+        cancelBtn.addEventListener('click', () => {
+            if (editing) {
+                // Reload the page to discard changes
+                location.reload();
+            }
+        });
+
+        // Save edits back to server
         saveBtn.addEventListener('click', async () => {
             const rows = Array.from(table.querySelectorAll('tbody tr')).map(row => {
                 const cells = row.querySelectorAll('td');
