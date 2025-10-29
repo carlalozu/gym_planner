@@ -6,6 +6,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Exercise Library</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <style>
+        th:first-child,
+        td:first-child {
+            width: 60px;
+            text-align: center;
+        }
+
+        th:first-child input[type="checkbox"] {
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        th {
+            vertical-align: middle;
+        }
+    </style>
 </head>
 
 <body>
@@ -37,7 +54,9 @@
         <table>
             <thead>
                 <tr>
-                    <th>Select</th>
+                    <th>
+                        <input type="checkbox" class="select-all" title="Select all exercises in {{ group.day_type }}">
+                    </th>
                     <th>Exercise</th>
                     <th>Primary Muscle Group</th>
                 </tr>
@@ -56,7 +75,7 @@
     {% endfor %}
 
     <script>
-        // Dropdown filter logic
+        // --- Dropdown filter logic ---
         const dropdown = document.getElementById('dayDropdown');
         const btn = document.getElementById('dayBtn');
         const content = document.getElementById('dayContent');
@@ -79,10 +98,8 @@
                     .filter(c => c.checked)
                     .map(c => c.value);
 
-                // Update button text
                 btn.textContent = selected.length === 0 ? 'Select Day Types' : selected.join(', ');
 
-                // Show/hide sections
                 sections.forEach(section => {
                     section.style.display = selected.length === 0 || selected.includes(section.dataset.day)
                         ? 'block'
@@ -91,7 +108,7 @@
             });
         });
 
-        // --- ✅ Exercise selection logic ---
+        // --- Exercise selection logic ---
         const exerciseCheckboxes = document.querySelectorAll('.select-exercise');
         exerciseCheckboxes.forEach(box => {
             box.addEventListener('change', (e) => {
@@ -104,7 +121,20 @@
             });
         });
 
-        // --- ✅ Save selections to localStorage ---
+        // --- Select All per category ---
+        const selectAllBoxes = document.querySelectorAll('.select-all');
+        selectAllBoxes.forEach(selectAll => {
+            selectAll.addEventListener('change', (e) => {
+                const daySection = e.target.closest('.day-section');
+                const checkboxes = daySection.querySelectorAll('.select-exercise');
+                checkboxes.forEach(cb => {
+                    cb.checked = e.target.checked;
+                    cb.dispatchEvent(new Event('change')); // triggers row highlight
+                });
+            });
+        });
+
+        // --- Save selections to localStorage ---
         function saveSelections() {
             const selectedExercises = [];
             document.querySelectorAll('.select-exercise:checked').forEach(box => {
@@ -129,7 +159,6 @@
         saveBtn.style.cursor = 'pointer';
         saveBtn.addEventListener('click', saveSelections);
         filterSection.appendChild(saveBtn);
-
     </script>
 </body>
 
