@@ -4,25 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Selected Exercises</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f7f8fa; margin: 40px; }
-        h1 { text-align: center; }
-        .nav { text-align: center; margin-bottom: 30px; }
-        .nav a {
-            text-decoration: none;
-            color: white;
-            background-color: #333;
-            padding: 10px 16px;
-            border-radius: 5px;
-            margin: 0 5px;
-        }
-        .nav a:hover { background-color: #555; }
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-        th { background: #333; color: white; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
-        .message { text-align: center; font-size: 1.2em; color: #888; margin-top: 40px; }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <h1>⭐ Selected Exercises</h1>
