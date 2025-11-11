@@ -1,35 +1,34 @@
-Exercise,Primary Muscle Group,Day Type
+Exercise,Muscle Group,Day Type
 Treadmill,Cardio,Cardio
 Cycling,Cardio,Cardio
 Stairs,Cardio,Cardio
+Rowing,Cardio,Cardio
+Romanian Deadlifts,Hamstrings/Glutes/Back,Legs/Glutes
 Deadlifts,Hamstrings/Glutes/Back,Legs/Glutes
 Leg Extension,Quads,Legs
-Hip Abductors (in and out),Glutes,Legs/Glutes
+Hip Abductors,Glutes,Legs/Glutes
 Leg Press,Quads/Glutes,Legs
 Squats,Quads/Glutes,Legs/Glutes
-Squats (Smith Machine),Quads/Glutes,Glutes/Legs
 Sumo Squats,Glutes/Inner Thighs,Glutes
 Bulgarian Split Squats,Quads/Glutes,Glutes
-Hip Thrusts,Glutes/Hamstrings,Glutes
 Hamstring Curls,Hamstrings,Legs
-Leg Abductors (in/out),Glutes,Legs/Glutes
-Hip Thrusts / Glute Bridges,Glutes/Hamstrings,Legs/Glutes
+Leg Abductors,Glutes,Legs/Glutes
+Hip Thrusts,Glutes/Hamstrings,Legs/Glutes
 Back Kicks,Glutes,Glutes
-Cable Kickbacks / Back Kicks,Glutes,Glutes
-Calf Press (Leg Press Machine),Calves,Legs/Glutes
+Cable Kickbacks,Glutes,Glutes
+Calf Press,Calves,Legs/Glutes
 Russian Twists,Obliques/Core,Core/Push Day
 Hanging Knee Raises,Core,Push Day/Core
 Plank,Core,Core/Push Day
 Push-Ups,Chest/Triceps/Shoulders,Push Day/Chest/Upper Body
-Rows,Back,Back/Shoulders/Upper Body
 Dumbbell Curls (Overhead),Biceps,Back/Shoulders/Upper Body
-Front Dumbbell Raises,Front Delts,Back/Shoulders/Upper Body
-Lateral Dumbbell Raises,Lateral Delts,Back/Shoulders/Upper Body
+Front Raises,Front Delts,Back/Shoulders/Upper Body
+Lateral Raises,Lateral Delts,Back/Shoulders/Upper Body
 Bench Press,Chest/Triceps/Front Delts,Chest/Push Day/Upper Body
 Incline Dumbbell Press,Upper Chest/Shoulders,Chest/Push Day/Upper Body
 Dumbbell Flyes,Chest,Chest/Push Day/Upper Body
 Triceps Cable Pushdowns,Triceps,Arms/Push Day/Upper Body
-Seated Row (Cable),Back,Back/Shoulders/Upper Body
+Seated Cable Row,Back,Back/Shoulders/Upper Body
 Dumbbell Rows,Back,Back/Shoulders/Upper Body
 Face Pulls,Rear Delts/Traps,Back/Shoulders/Upper Body
 Overhead Triceps Extension,Triceps,Push Day/Upper Body

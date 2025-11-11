@@ -3,7 +3,17 @@ import pandas as pd
 from datetime import datetime
 import config
 from flask import jsonify
+from difflib import get_close_matches
 import os
+import re
+
+# 🧹 Helper function to normalize exercise names
+def normalize_exercise(name):
+    if not isinstance(name, str):
+        return ""
+    # Remove parentheses and text inside them, lowercase, trim spaces
+    name = re.sub(r'\(.*?\)', '', name)
+    return name.strip().lower()
 
 app = Flask(__name__)
 
@@ -20,6 +30,11 @@ def show_plan():
     today_str = datetime.now().strftime("%d %b")
     selected_date = request.form.get('date') or today_str
 
+    # 🔁 RELOAD CSV fresh each time
+    workout_df = pd.read_csv('gym_routines_with_muscles.csv')
+    workout_df['Date'] = workout_df['Date'].astype(str).str.strip()
+    available_dates = sorted(workout_df['Date'].unique(), key=lambda x: datetime.strptime(x, "%d %b"))
+
     # Filter for selected date
     plan = workout_df[workout_df['Date'].str.startswith(selected_date)]
 
@@ -34,11 +49,18 @@ def show_plan():
 
     workout_type = plan.iloc[0]['Workout Type']
     plan_records = plan.to_dict(orient='records')
-    # match exercise names with their primary muscle groups
-    exercise_muscle_map = dict(zip(exercise_df['Exercise'], exercise_df['Primary Muscle Group']))
+    # match exercise names with their Muscle Groups
+# 🧠 Build the normalized lookup map
+    exercise_muscle_map = {
+        normalize_exercise(ex): muscle
+        for ex, muscle in zip(exercise_df['Exercise'], exercise_df['Muscle Group'])
+    }
+
+    # 🔍 Apply matching using normalized names
     for record in plan_records:
-        exercise_name = record['Exercise']
-        record['Primary Muscle Group'] = exercise_muscle_map.get(exercise_name, 'N/A')
+        normalized_name = normalize_exercise(record['Exercise'])
+        print(normalized_name)
+        record['Muscle Group'] = exercise_muscle_map.get(normalized_name, 'N/A')
 
     return render_template('index.html',
                            dates=available_dates,
@@ -59,7 +81,7 @@ def show_exercises():
         for day in day_types:
             expanded_rows.append({
                 'Exercise': row['Exercise'],
-                'Primary Muscle Group': row['Primary Muscle Group'],
+                'Muscle Group': row['Muscle Group'],
                 'Day Type': day
             })
 
@@ -68,7 +90,7 @@ def show_exercises():
     # Group exercises by the cleaned day types
     exercise_groups = []
     for day_type, group in expanded_df.groupby('Day Type'):
-        exercises = group[['Exercise', 'Primary Muscle Group']].to_dict(orient='records')
+        exercises = group[['Exercise', 'Muscle Group']].to_dict(orient='records')
         exercise_groups.append({'day_type': day_type, 'exercises': exercises})
 
     # Sort alphabetically for nicer dropdown display
@@ -101,7 +123,6 @@ def save_plan():
             'Sets': item['Sets'],
             'Reps': item['Reps'],
             'Weight': item['Weight'],
-            'Primary Muscle Group': item['PrimaryMuscleGroup'],
         }
         df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
 
@@ -126,15 +147,29 @@ def history_data():
 
     workout_df = pd.read_csv(csv_path)
 
-    # --- Filter only selected exercises ---
-    filtered_df = workout_df[workout_df["Exercise"].isin(selected_exercises)]
-    filtered_df = filtered_df.sort_values(by=["Exercise", "Date"], ascending=[True, True])
+    # --- Normalize all exercise names ---
+    workout_df["normalized_exercise"] = workout_df["Exercise"].apply(normalize_exercise)
+    normalized_selected = [normalize_exercise(e) for e in selected_exercises]
 
-    # --- Handle no matches ---
-    if filtered_df.empty:
+    # --- Try to find close matches (to handle typos, plural forms, etc.) ---
+    matched_rows = []
+    for sel in normalized_selected:
+        # Exact normalized match first
+        matches = workout_df[workout_df["normalized_exercise"] == sel]
+        if matches.empty:
+            # Try fuzzy matching (e.g., "bicep curls" vs "biceps curl")
+            possible_keys = get_close_matches(sel, workout_df["normalized_exercise"].unique(), n=1, cutoff=0.8)
+            if possible_keys:
+                matches = workout_df[workout_df["normalized_exercise"] == possible_keys[0]]
+        if not matches.empty:
+            matched_rows.append(matches)
+
+    if not matched_rows:
         return jsonify([])
 
-    # --- Convert all values to strings (for JSON safety) ---
+    # --- Combine and clean ---
+    filtered_df = pd.concat(matched_rows)
+    filtered_df = filtered_df.sort_values(by=["Exercise", "Date"], ascending=[True, True])
     filtered_df = filtered_df.fillna("-").astype(str)
 
     return jsonify(filtered_df.to_dict(orient="records"))
