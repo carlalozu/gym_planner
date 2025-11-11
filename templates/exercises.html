@@ -27,7 +27,7 @@
                     <input type="checkbox" class="select-all" title="Select all exercises in {{ group.day_type }}">
                 </th>
                 <th>Exercise</th>
-                <th>Primary Muscle Group</th>
+                <th>Muscle Group</th>
             </tr>
         </thead>
         <tbody>
@@ -35,7 +35,7 @@
             <tr data-exercise="{{ ex['Exercise'] }}">
                 <td><input type="checkbox" class="select-exercise"></td>
                 <td>{{ ex['Exercise'] }}</td>
-                <td>{{ ex['Primary Muscle Group'] }}</td>
+                <td>{{ ex['Muscle Group'] }}</td>
             </tr>
             {% endfor %}
         </tbody>
