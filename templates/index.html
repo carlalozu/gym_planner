@@ -6,14 +6,7 @@
 <div class="controls">
     <form method="POST">
         <label for="date">Select a date:</label>
-        <input 
-            type="date" 
-            name="date" 
-            id="date" 
-            value="{{ selected_date }}"
-            min="{{ dates[0] }}" 
-            max="{{ dates[-1] }}"
-        >
+        <input type="date" name="date" id="date" value="{{ selected_date }}" min="{{ dates[0] }}" max="{{ dates[-1] }}">
         <button type="submit">View Plan</button>
     </form>
 </div>
@@ -31,7 +24,7 @@
             <th>Muscle Group</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="tableBody">
         {% for item in plan %}
         <tr>
             <td>{{ item['Exercise'] }}</td>
@@ -51,6 +44,8 @@
     <button id="cancelBtn" style="display:none;">❌ Cancel</button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
 <script>
     const editBtn = document.getElementById('editBtn');
     const saveBtn = document.getElementById('saveBtn');
@@ -62,6 +57,8 @@
     let editing = false;
 
     // Enable editing
+    let sortableInstance = null;
+
     editBtn.addEventListener('click', () => {
         editing = true;
         saveBtn.style.display = 'inline-block';
@@ -73,10 +70,27 @@
             const editableCells = row.querySelectorAll('td:nth-child(2), td:nth-child(3), td:nth-child(4)');
             editableCells.forEach(td => td.contentEditable = true);
         });
+
+        // --- Enable drag-to-sort rows ---
+        const tbody = document.getElementById('tableBody');
+
+        sortableInstance = Sortable.create(tbody, {
+            animation: 150,
+            handle: 'td',          // drag from any cell
+            ghostClass: 'dragging' // optional styling
+        });
     });
+
+    function disableSorting() {
+        if (sortableInstance) {
+            sortableInstance.destroy();
+            sortableInstance = null;
+        }
+    }
 
     // Add cancel button
     cancelBtn.addEventListener('click', () => {
+        disableSorting();
         if (editing) {
             // Reload the page to discard changes
             location.reload();
@@ -85,6 +99,7 @@
 
     // Save edits back to server
     saveBtn.addEventListener('click', async () => {
+        disableSorting();
         const rows = Array.from(table.querySelectorAll('tbody tr')).map(row => {
             const cells = row.querySelectorAll('td');
             return {
