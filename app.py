@@ -20,23 +20,27 @@ app = Flask(__name__)
 # Load main workout CSV (for the daily view)
 workout_df = pd.read_csv('gym_routines_with_muscles.csv')
 workout_df['Date'] = workout_df['Date'].astype(str).str.strip()
-available_dates = sorted(workout_df['Date'].unique(), key=lambda x: datetime.strptime(x, "%d %b"))
+# format dd-mm-yyyy
+available_dates = sorted(workout_df['Date'].unique())
 
 # Load exercise–muscle–day mapping CSV
 exercise_df = pd.read_csv('exercise_muscle_daytype.csv')
 
 @app.route('/', methods=['GET', 'POST'])
 def show_plan():
-    today_str = datetime.now().strftime("%d %b")
-    selected_date = request.form.get('date') or today_str
+    if 'date' not in request.form:
+        selected_date = datetime.now()
+    else:
+        selected_date = datetime.strptime(request.form['date'], '%Y-%m-%d')
+    selected_date = selected_date.strftime('%d-%m-%Y')
 
     # 🔁 RELOAD CSV fresh each time
     workout_df = pd.read_csv('gym_routines_with_muscles.csv')
     workout_df['Date'] = workout_df['Date'].astype(str).str.strip()
-    available_dates = sorted(workout_df['Date'].unique(), key=lambda x: datetime.strptime(x, "%d %b"))
+    available_dates = sorted(workout_df['Date'].unique())
 
     # Filter for selected date
-    plan = workout_df[workout_df['Date'].str.startswith(selected_date)]
+    plan = workout_df[workout_df['Date'] == str(selected_date)]
 
     if plan.empty:
         message = f"No workout planned for {selected_date} 💆‍♀️"
@@ -50,7 +54,6 @@ def show_plan():
     workout_type = plan.iloc[0]['Workout Type']
     plan_records = plan.to_dict(orient='records')
     # match exercise names with their Muscle Groups
-# 🧠 Build the normalized lookup map
     exercise_muscle_map = {
         normalize_exercise(ex): muscle
         for ex, muscle in zip(exercise_df['Exercise'], exercise_df['Muscle Group'])
@@ -72,7 +75,6 @@ def show_plan():
 
 @app.route('/exercises')
 def show_exercises():
-    # --- 🧠 Split multi-day entries (e.g. "Arms/Push Day" -> ["Arms", "Push Day"]) ---
     expanded_rows = []
 
     for _, row in exercise_df.iterrows():
@@ -168,7 +170,8 @@ def history_data():
         return jsonify([])
 
     # --- Combine and clean ---
-    filtered_df = pd.concat(matched_rows)
+    filtered_df = pd.concat(matched_rows).drop(columns=["normalized_exercise"])
+    filtered_df["Date"] = pd.to_datetime(filtered_df["Date"], dayfirst=True, errors="coerce")
     filtered_df = filtered_df.sort_values(by=["Exercise", "Date"], ascending=[True, True])
     filtered_df = filtered_df.fillna("-").astype(str)
 

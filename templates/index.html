@@ -6,11 +6,14 @@
 <div class="controls">
     <form method="POST">
         <label for="date">Select a date:</label>
-        <select name="date" id="date">
-            {% for d in dates %}
-            <option value="{{ d }}" {% if d==selected_date %}selected{% endif %}>{{ d }}</option>
-            {% endfor %}
-        </select>
+        <input 
+            type="date" 
+            name="date" 
+            id="date" 
+            value="{{ selected_date }}"
+            min="{{ dates[0] }}" 
+            max="{{ dates[-1] }}"
+        >
         <button type="submit">View Plan</button>
     </form>
 </div>
